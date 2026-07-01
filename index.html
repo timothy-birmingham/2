@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Association Service Lookup</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>Association Service Lookup</h1>
+        <p>Select an office and an association.</p>
+    </header>
+
+    <div class="card">
+
+        <div class="input-group">
+
+            <label for="officeSelect">Office</label>
+
+            <select id="officeSelect">
+                <option value="">Select Office...</option>
+            </select>
+
+        </div>
+
+        <div class="input-group">
+
+            <label for="associationSelect">Association</label>
+
+            <select id="associationSelect" disabled>
+                <option value="">Select Association...</option>
+            </select>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Association Information</h2>
+
+        <div id="associationInfo">
+
+            <p>Select an association to view details.</p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
