@@ -1,0 +1,49 @@
+[
+    {
+        "id": 1,
+        "office": "Fort Myers",
+        "association": "Palm Grove HOA",
+        "manager": "John Smith",
+        "units": 142,
+        "services": [
+            "Website",
+            "Accounting",
+            "Gate Access"
+        ]
+    },
+    {
+        "id": 2,
+        "office": "Fort Myers",
+        "association": "Lakeside Villas",
+        "manager": "Jane Doe",
+        "units": 210,
+        "services": [
+            "Website",
+            "Printing",
+            "Violations"
+        ]
+    },
+    {
+        "id": 3,
+        "office": "Naples",
+        "association": "Pelican Bay",
+        "manager": "Mike Johnson",
+        "units": 420,
+        "services": [
+            "Accounting",
+            "Website",
+            "Printing"
+        ]
+    },
+    {
+        "id": 4,
+        "office": "Naples",
+        "association": "Royal Palm Estates",
+        "manager": "Sarah Wilson",
+        "units": 96,
+        "services": [
+            "Gate Access",
+            "Website"
+        ]
+    }
+]
