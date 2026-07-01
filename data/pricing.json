@@ -1,7 +1,32 @@
-{
-    "Website": 75,
-    "Accounting": 250,
-    "Gate Access": 35,
-    "Printing": 25,
-    "Violations": 60
-}
+[
+    {
+        "name": "Color Copies",
+        "unit": "Copy",
+        "price": 0.15
+    },
+    {
+        "name": "Black & White Copies",
+        "unit": "Copy",
+        "price": 0.08
+    },
+    {
+        "name": "Gate Card",
+        "unit": "Card",
+        "price": 8.00
+    },
+    {
+        "name": "Key Fob",
+        "unit": "Fob",
+        "price": 15.00
+    },
+    {
+        "name": "Violation Letter",
+        "unit": "Letter",
+        "price": 1.25
+    },
+    {
+        "name": "Amenity Pass",
+        "unit": "Pass",
+        "price": 5.00
+    }
+]
