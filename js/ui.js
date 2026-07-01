@@ -1,4 +1,18 @@
 // ===============================
+// Variable initialization
+// ===============================
+
+const officeSelect = document.getElementById("officeSelect");
+const associationSelect = document.getElementById("associationSelect");
+const employeeSelect = document.getElementById("employeeSelect");
+const serviceSelect = document.getElementById("serviceSelect");
+const quantityInput = document.getElementById("quantityInput");
+const notesInput = document.getElementById("notesInput");
+const addItemButton = document.getElementById("addItemButton");
+const receiptTable = document.querySelector("#receiptTable tbody");
+const receiptTotal = document.getElementById("receiptTotal");
+
+// ===============================
 // UI Initialization
 // ===============================
 
