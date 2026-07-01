@@ -1,61 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Association Service Lookup</title>
+
+    <title>Vesta Billing Portal</title>
 
     <link rel="stylesheet" href="styles.css">
+
 </head>
 
 <body>
 
-<div class="container">
-
     <header>
-        <h1>Association Service Lookup</h1>
-        <p>Select an office and an association.</p>
+
+        <div class="header-left">
+
+            <h1>Vesta Billing Portal</h1>
+
+            <p>Create Association Billing Requests</p>
+
+        </div>
+
+        <div class="header-right">
+
+            <span id="todayDate"></span>
+
+        </div>
+
     </header>
 
-    <div class="card">
+    <main>
 
-        <div class="input-group">
+        <!-- LEFT COLUMN -->
 
-            <label for="officeSelect">Office</label>
+        <section class="card">
 
-            <select id="officeSelect">
-                <option value="">Select Office...</option>
-            </select>
+            <h2>Billing Information</h2>
 
-        </div>
+            <div class="form-group">
 
-        <div class="input-group">
+                <label>Office</label>
 
-            <label for="associationSelect">Association</label>
+                <select id="officeSelect">
 
-            <select id="associationSelect" disabled>
-                <option value="">Select Association...</option>
-            </select>
+                    <option value="">Select Office</option>
 
-        </div>
+                </select>
 
-    </div>
+            </div>
 
-    <div class="card">
+            <div class="form-group">
 
-        <h2>Association Information</h2>
+                <label>Association</label>
 
-        <div id="associationInfo">
+                <select id="associationSelect" disabled>
 
-            <p>Select an association to view details.</p>
+                    <option value="">Select Association</option>
 
-        </div>
+                </select>
 
-    </div>
+            </div>
 
-</div>
+            <div class="form-group">
 
-<script src="app.js"></script>
+                <label>Prepared By</label>
+
+                <select id="employeeSelect">
+
+                    <option value="">Select Employee</option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+        <!-- SERVICE ENTRY -->
+
+        <section class="card">
+
+            <h2>Add Billing Item</h2>
+
+            <div class="form-group">
+
+                <label>Service</label>
+
+                <select id="serviceSelect">
+
+                    <option value="">Select Service</option>
+
+                </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Quantity</label>
+
+                <input
+                    type="number"
+                    id="quantityInput"
+                    placeholder="Enter Quantity"
+                    min="1"
+                    value="1">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Notes</label>
+
+                <textarea
+                    id="notesInput"
+                    rows="4"
+                    placeholder="Enter Notes"></textarea>
+
+            </div>
+
+            <button id="addItemButton">
+
+                + Add Line Item
+
+            </button>
+
+        </section>
+
+        <!-- RECEIPT -->
+
+        <section class="card">
+
+            <div class="receipt-header">
+
+                <h2>Billing Receipt</h2>
+
+                <button id="clearReceipt">
+
+                    Clear
+
+                </button>
+
+            </div>
+
+            <table id="receiptTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Service</th>
+
+                        <th>Qty</th>
+
+                        <th>Unit Price</th>
+
+                        <th>Total</th>
+
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                </tbody>
+
+            </table>
+
+            <div class="receipt-total">
+
+                Total
+
+                <span id="receiptTotal">$0.00</span>
+
+            </div>
+
+            <div class="button-row">
+
+                <button id="printButton">
+
+                    Print
+
+                </button>
+
+                <button id="exportButton">
+
+                    Export PDF
+
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="js/data.js"></script>
+
+    <script src="js/ui.js"></script>
+
+    <script src="js/receipt.js"></script>
+
+    <script src="js/export.js"></script>
+
+    <script src="app.js"></script>
 
 </body>
+
 </html>
