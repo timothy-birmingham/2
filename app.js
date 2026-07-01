@@ -10,6 +10,7 @@
 let associations = [];
 let employees = [];
 let services = [];
+let receipt = [];
 
 // ----------------------
 // HTML Elements
