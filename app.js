@@ -1,8 +1,10 @@
 // ======================================================
 // Vesta Billing Portal
 // app.js
+// Version 2
 // Part 1 of 2
 // ======================================================
+
 
 // ======================================================
 // Global State
@@ -13,6 +15,7 @@ let employees = [];
 let services = [];
 
 let receiptItems = [];
+
 
 // ======================================================
 // Cached DOM Elements
@@ -41,26 +44,32 @@ const clearReceiptButton = document.getElementById("clearReceipt");
 const printButton = document.getElementById("printButton");
 const exportButton = document.getElementById("exportButton");
 
+
 // ======================================================
 // Utility Functions
 // ======================================================
 
 function formatMoney(value) {
+
     return "$" + Number(value).toFixed(2);
+
 }
+
 
 function getTodayString() {
 
-    const options = {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-    };
-
-    return new Date().toLocaleDateString("en-US", options);
+    return new Date().toLocaleDateString(
+        "en-US",
+        {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        }
+    );
 
 }
+
 
 function clearDropdown(selectElement, placeholder) {
 
@@ -75,17 +84,38 @@ function clearDropdown(selectElement, placeholder) {
 
 }
 
+
 function updateReceiptTotal() {
 
-    const total = receiptItems.reduce((sum, item) => {
-
-        return sum + item.lineTotal;
-
-    }, 0);
+    const total = receiptItems.reduce(
+        (sum, item) => sum + item.lineTotal,
+        0
+    );
 
     receiptTotal.textContent = formatMoney(total);
 
 }
+
+
+function getSelectedAssociation() {
+
+    return associations.find(
+        association =>
+            association.id == associationSelect.value
+    );
+
+}
+
+
+function getSelectedEmployee() {
+
+    return employees.find(
+        employee =>
+            employee.id == employeeSelect.value
+    );
+
+}
+
 
 // ======================================================
 // Data Loading
@@ -107,43 +137,63 @@ async function loadData() {
 
         ]);
 
+
         associations = await associationsResponse.json();
+
         employees = await employeesResponse.json();
+
         services = await servicesResponse.json();
 
+
         populateOfficeDropdown();
+
         populateEmployeeDropdown();
+
         populateServiceDropdown();
+
 
     }
 
-    catch (error) {
+    catch(error) {
 
-        console.error(error);
+        console.error(
+            "Data loading error:",
+            error
+        );
 
-        alert("Unable to load JSON data.");
+        alert(
+            "Unable to load portal data."
+        );
 
     }
 
 }
 
+
 // ======================================================
-// Populate Dropdowns
+// Dropdown Population
 // ======================================================
 
 function populateOfficeDropdown() {
 
-    const offices = [...new Set(
+    const offices = [
+        ...new Set(
+            associations.map(
+                association => association.office
+            )
+        )
+    ];
 
-        associations.map(a => a.office)
 
-    )].sort();
+    offices.sort();
+
 
     offices.forEach(office => {
 
         const option = document.createElement("option");
 
         option.value = office;
+
         option.textContent = office;
 
         officeSelect.appendChild(option);
@@ -152,83 +202,97 @@ function populateOfficeDropdown() {
 
 }
 
-function populateAssociationDropdown(selectedOffice) {
+
+
+function populateAssociationDropdown(office) {
+
 
     clearDropdown(
-
         associationSelect,
         "Select Association"
-
     );
 
-    const filtered = associations.filter(a =>
 
-        a.office === selectedOffice
+    const filteredAssociations =
+        associations.filter(
+            association =>
+                association.office === office
+        );
 
-    );
 
-    filtered
-        .sort((a, b) =>
+    filteredAssociations.forEach(
+        association => {
 
-            a.association.localeCompare(b.association)
+            const option =
+                document.createElement("option");
 
-        )
-        .forEach(association => {
 
-            const option = document.createElement("option");
+            option.value =
+                association.id;
 
-            option.value = association.id;
-            option.textContent = association.association;
+
+            option.textContent =
+                association.association;
+
 
             associationSelect.appendChild(option);
 
-        });
+        }
+    );
+
 
     associationSelect.disabled = false;
 
 }
 
+
+
 function populateEmployeeDropdown() {
 
-    employees
-        .sort((a, b) =>
+    employees.forEach(employee => {
 
-            a.name.localeCompare(b.name)
+        const option =
+            document.createElement("option");
 
-        )
-        .forEach(employee => {
 
-            const option = document.createElement("option");
+        option.value =
+            employee.id;
 
-            option.value = employee.id;
-            option.textContent = employee.name;
 
-            employeeSelect.appendChild(option);
+        option.textContent =
+            employee.name;
 
-        });
+
+        employeeSelect.appendChild(option);
+
+    });
 
 }
+
+
 
 function populateServiceDropdown() {
 
-    services
-        .sort((a, b) =>
+    services.forEach(service => {
 
-            a.name.localeCompare(b.name)
+        const option =
+            document.createElement("option");
 
-        )
-        .forEach(service => {
 
-            const option = document.createElement("option");
+        option.value =
+            service.name;
 
-            option.value = service.name;
-            option.textContent = service.name;
 
-            serviceSelect.appendChild(option);
+        option.textContent =
+            service.name;
 
-        });
+
+        serviceSelect.appendChild(option);
+
+    });
 
 }
+
 
 // ======================================================
 // Service Preview
@@ -236,33 +300,44 @@ function populateServiceDropdown() {
 
 function updateServicePreview() {
 
-    const serviceName = serviceSelect.value;
+    const selectedService =
+        services.find(
+            service =>
+                service.name === serviceSelect.value
+        );
 
-    const quantity = Number(quantityInput.value) || 1;
 
-    if (!serviceName) {
+    const quantity =
+        Number(quantityInput.value) || 1;
+
+
+    if(!selectedService) {
 
         unitPrice.textContent = "$0.00";
+
         unitType.textContent = "-";
+
         lineTotal.textContent = "$0.00";
 
         return;
 
     }
 
-    const service = services.find(s =>
 
-        s.name === serviceName
+    unitPrice.textContent =
+        formatMoney(
+            selectedService.price
+        );
 
-    );
 
-    if (!service) return;
+    unitType.textContent =
+        selectedService.unit;
 
-    const total = quantity * service.price;
 
-    unitPrice.textContent = formatMoney(service.price);
-    unitType.textContent = service.unit;
-    lineTotal.textContent = formatMoney(total);
+    lineTotal.textContent =
+        formatMoney(
+            selectedService.price * quantity
+        );
 
 }
 
@@ -274,194 +349,656 @@ function renderReceipt() {
 
     receiptTableBody.innerHTML = "";
 
+
     receiptItems.forEach((item, index) => {
 
         const row = document.createElement("tr");
 
+
         row.innerHTML = `
+
             <td>${item.service}</td>
+
             <td>${item.quantity}</td>
+
             <td>${item.unit}</td>
-            <td class="money">${formatMoney(item.unitPrice)}</td>
-            <td class="money">${formatMoney(item.lineTotal)}</td>
+
+            <td class="money">
+                ${formatMoney(item.unitPrice)}
+            </td>
+
+            <td class="money">
+                ${formatMoney(item.lineTotal)}
+            </td>
+
             <td>
-                <button class="delete-btn" data-index="${index}">
+                <button 
+                    class="delete-btn"
+                    data-index="${index}">
                     Delete
                 </button>
             </td>
+
         `;
+
 
         receiptTableBody.appendChild(row);
 
     });
 
+
     updateReceiptTotal();
 
 }
 
+
+
+// ======================================================
+// Add Billing Item
+// ======================================================
+
 function addReceiptItem() {
 
-    if (!officeSelect.value) {
-        alert("Please select an office.");
-        return;
-    }
 
-    if (!associationSelect.value) {
-        alert("Please select an association.");
-        return;
-    }
+    const service =
+        services.find(
+            service =>
+                service.name === serviceSelect.value
+        );
 
-    if (!employeeSelect.value) {
-        alert("Please select the employee preparing this billing.");
-        return;
-    }
 
-    if (!serviceSelect.value) {
-        alert("Please select a service.");
-        return;
-    }
+    if(!service) {
 
-    const quantity = Number(quantityInput.value);
-
-    if (!quantity || quantity <= 0) {
-        alert("Quantity must be greater than zero.");
-        return;
-    }
-
-    const service = services.find(s => s.name === serviceSelect.value);
-
-    if (!service) return;
-
-    const item = {
-
-        service: service.name,
-        quantity: quantity,
-        unit: service.unit,
-        unitPrice: service.price,
-        lineTotal: quantity * service.price,
-        notes: notesInput.value.trim()
-
-    };
-
-    receiptItems.push(item);
-
-    renderReceipt();
-
-    serviceSelect.value = "";
-    quantityInput.value = 1;
-    notesInput.value = "";
-
-    updateServicePreview();
-
-}
-
-function deleteReceiptItem(index) {
-
-    receiptItems.splice(index, 1);
-
-    renderReceipt();
-
-}
-
-function clearReceipt() {
-
-    if (receiptItems.length === 0) return;
-
-    const confirmed = confirm(
-        "Clear all receipt items?"
-    );
-
-    if (!confirmed) return;
-
-    receiptItems = [];
-
-    renderReceipt();
-
-}
-
-// ======================================================
-// Event Listeners
-// ======================================================
-
-officeSelect.addEventListener("change", () => {
-
-    if (!officeSelect.value) {
-
-        associationSelect.disabled = true;
-
-        clearDropdown(
-            associationSelect,
-            "Select Association"
+        alert(
+            "Please select a service."
         );
 
         return;
 
     }
 
-    populateAssociationDropdown(
-        officeSelect.value
+
+    const quantity =
+        Number(quantityInput.value);
+
+
+    if(!quantity || quantity <= 0) {
+
+        alert(
+            "Quantity must be greater than zero."
+        );
+
+        return;
+
+    }
+
+
+    const item = {
+
+        service:
+            service.name,
+
+        quantity:
+            quantity,
+
+        unit:
+            service.unit,
+
+        unitPrice:
+            service.price,
+
+        lineTotal:
+            quantity * service.price,
+
+        notes:
+            notesInput.value.trim()
+
+    };
+
+
+    receiptItems.push(item);
+
+
+    renderReceipt();
+
+
+    serviceSelect.value = "";
+
+    quantityInput.value = 1;
+
+    notesInput.value = "";
+
+
+    updateServicePreview();
+
+}
+
+
+
+// ======================================================
+// Delete Receipt Item
+// ======================================================
+
+function deleteReceiptItem(index) {
+
+
+    receiptItems.splice(
+        index,
+        1
     );
 
-});
+
+    renderReceipt();
+
+}
+
+
+
+// ======================================================
+// Clear Receipt
+// ======================================================
+
+function clearReceipt() {
+
+
+    if(receiptItems.length === 0) {
+
+        return;
+
+    }
+
+
+    if(
+        !confirm(
+            "Clear all billing items?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    receiptItems = [];
+
+
+    renderReceipt();
+
+}
+
+
+
+// ======================================================
+// Print Document Generator
+// ======================================================
+
+function generatePrintDocument() {
+
+
+    const association =
+        getSelectedAssociation();
+
+
+    const employee =
+        getSelectedEmployee();
+
+
+    const total =
+        receiptItems.reduce(
+            (sum, item) =>
+                sum + item.lineTotal,
+            0
+        );
+
+
+    let rows = "";
+
+
+    receiptItems.forEach(item => {
+
+
+        rows += `
+
+            <tr>
+
+                <td>
+                    ${item.service}
+                </td>
+
+                <td>
+                    ${item.quantity}
+                </td>
+
+                <td>
+                    ${item.unit}
+                </td>
+
+                <td>
+                    ${formatMoney(item.unitPrice)}
+                </td>
+
+                <td>
+                    ${formatMoney(item.lineTotal)}
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+
+
+    return `
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>
+Vesta Billing Request
+</title>
+
+
+<style>
+
+body {
+
+    font-family:
+        Arial, sans-serif;
+
+    padding:
+        40px;
+
+    color:
+        #333;
+
+}
+
+
+h1 {
+
+    text-align:
+        center;
+
+    color:
+        #1f4e79;
+
+}
+
+
+.header {
+
+    margin-bottom:
+        30px;
+
+}
+
+
+.info {
+
+    line-height:
+        1.8;
+
+}
+
+
+table {
+
+    width:
+        100%;
+
+    border-collapse:
+        collapse;
+
+    margin-top:
+        30px;
+
+}
+
+
+th {
+
+    background:
+        #1f4e79;
+
+    color:
+        white;
+
+    padding:
+        10px;
+
+    text-align:
+        left;
+
+}
+
+
+td {
+
+    border-bottom:
+        1px solid #ddd;
+
+    padding:
+        10px;
+
+}
+
+
+.total {
+
+    margin-top:
+        30px;
+
+    text-align:
+        right;
+
+    font-size:
+        22px;
+
+    font-weight:
+        bold;
+
+}
+
+
+.footer {
+
+    margin-top:
+        80px;
+
+}
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<h1>
+Vesta Billing Request
+</h1>
+
+
+<div class="header">
+
+
+<div class="info">
+
+<strong>Date:</strong>
+${getTodayString()}
+<br>
+
+
+<strong>Office:</strong>
+${officeSelect.value}
+<br>
+
+
+<strong>Association:</strong>
+${association ? association.association : ""}
+<br>
+
+
+<strong>Prepared By:</strong>
+${employee ? employee.name : ""}
+
+
+</div>
+
+
+</div>
+
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>
+Service
+</th>
+
+<th>
+Qty
+</th>
+
+<th>
+Unit
+</th>
+
+<th>
+Unit Price
+</th>
+
+<th>
+Total
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+${rows}
+
+</tbody>
+
+
+</table>
+
+
+
+<div class="total">
+
+Total:
+${formatMoney(total)}
+
+</div>
+
+
+
+<div class="footer">
+
+Prepared By Signature:
+_____________________________
+
+</div>
+
+
+
+</body>
+
+</html>
+
+`;
+
+}
+
+
+
+// ======================================================
+// Print Function
+// ======================================================
+
+function printReceipt() {
+
+
+    if(receiptItems.length === 0) {
+
+        alert(
+            "There are no billing items to print."
+        );
+
+        return;
+
+    }
+
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    printWindow.document.write(
+        generatePrintDocument()
+    );
+
+
+    printWindow.document.close();
+
+
+    printWindow.focus();
+
+
+    printWindow.print();
+
+
+}
+
+
+
+// ======================================================
+// Event Listeners
+// ======================================================
+
+officeSelect.addEventListener(
+    "change",
+    () => {
+
+        if(!officeSelect.value) {
+
+            associationSelect.disabled = true;
+
+            clearDropdown(
+                associationSelect,
+                "Select Association"
+            );
+
+            return;
+
+        }
+
+
+        populateAssociationDropdown(
+            officeSelect.value
+        );
+
+    }
+);
+
+
 
 serviceSelect.addEventListener(
     "change",
     updateServicePreview
 );
 
+
+
 quantityInput.addEventListener(
     "input",
     updateServicePreview
 );
+
+
 
 addItemButton.addEventListener(
     "click",
     addReceiptItem
 );
 
-receiptTableBody.addEventListener("click", (event) => {
 
-    if (!event.target.classList.contains("delete-btn")) return;
 
-    const index = Number(
-        event.target.dataset.index
-    );
+receiptTableBody.addEventListener(
+    "click",
+    event => {
 
-    deleteReceiptItem(index);
 
-});
+        if(
+            !event.target.classList.contains(
+                "delete-btn"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        deleteReceiptItem(
+            Number(
+                event.target.dataset.index
+            )
+        );
+
+
+    }
+);
+
+
 
 clearReceiptButton.addEventListener(
     "click",
     clearReceipt
 );
 
-printButton.addEventListener("click", () => {
 
-    window.print();
 
-});
+printButton.addEventListener(
+    "click",
+    printReceipt
+);
 
-exportButton.addEventListener("click", () => {
 
-    alert("PDF export coming soon.");
 
-});
+exportButton.addEventListener(
+    "click",
+    () => {
+
+        alert(
+            "PDF export coming soon."
+        );
+
+    }
+);
+
+
 
 // ======================================================
-// Initialization
+// Application Startup
 // ======================================================
 
 function initialize() {
 
-    todayDate.textContent = getTodayString();
+
+    todayDate.textContent =
+        getTodayString();
+
 
     quantityInput.value = 1;
 
+
     updateServicePreview();
+
 
     loadData();
 
+
 }
+
 
 initialize();
