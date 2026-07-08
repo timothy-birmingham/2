@@ -1,111 +1,149 @@
-// =========================================
+// ======================================================
 // Vesta Billing Portal
-// Version 1
-// =========================================
+// app.js
+// Part 1 of 2
+// ======================================================
 
-// ----------------------
-// Application Data
-// ----------------------
+// ======================================================
+// Global State
+// ======================================================
 
 let associations = [];
 let employees = [];
 let services = [];
-let receipt = [];
 
-// ----------------------
-// HTML Elements
-// ----------------------
+let receiptItems = [];
+
+// ======================================================
+// Cached DOM Elements
+// ======================================================
+
+const todayDate = document.getElementById("todayDate");
 
 const officeSelect = document.getElementById("officeSelect");
 const associationSelect = document.getElementById("associationSelect");
 const employeeSelect = document.getElementById("employeeSelect");
 const serviceSelect = document.getElementById("serviceSelect");
 
-const todayDate = document.getElementById("todayDate");
+const quantityInput = document.getElementById("quantityInput");
+const notesInput = document.getElementById("notesInput");
 
-// ----------------------
-// Startup
-// ----------------------
+const unitPrice = document.getElementById("unitPrice");
+const unitType = document.getElementById("unitType");
+const lineTotal = document.getElementById("lineTotal");
 
-document.addEventListener("DOMContentLoaded", initialize);
+const addItemButton = document.getElementById("addItemButton");
 
-async function initialize() {
+const receiptTableBody = document.querySelector("#receiptTable tbody");
+const receiptTotal = document.getElementById("receiptTotal");
 
-    todayDate.textContent = new Date().toLocaleDateString();
+const clearReceiptButton = document.getElementById("clearReceipt");
+const printButton = document.getElementById("printButton");
+const exportButton = document.getElementById("exportButton");
 
-    await loadData();
+// ======================================================
+// Utility Functions
+// ======================================================
 
-    populateOffices();
+function formatMoney(value) {
+    return "$" + Number(value).toFixed(2);
+}
 
-    populateEmployees();
+function getTodayString() {
 
-    populateServices();
+    const options = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    };
 
-    setupEvents();
+    return new Date().toLocaleDateString("en-US", options);
 
 }
 
-// ----------------------
-// Load JSON Files
-// ----------------------
+function clearDropdown(selectElement, placeholder) {
+
+    selectElement.innerHTML = "";
+
+    const option = document.createElement("option");
+
+    option.value = "";
+    option.textContent = placeholder;
+
+    selectElement.appendChild(option);
+
+}
+
+function updateReceiptTotal() {
+
+    const total = receiptItems.reduce((sum, item) => {
+
+        return sum + item.lineTotal;
+
+    }, 0);
+
+    receiptTotal.textContent = formatMoney(total);
+
+}
+
+// ======================================================
+// Data Loading
+// ======================================================
 
 async function loadData() {
 
     try {
 
-        const associationResponse =
-            await fetch("data/associations.json");
+        const [
+            associationsResponse,
+            employeesResponse,
+            servicesResponse
+        ] = await Promise.all([
 
-        associations =
-            await associationResponse.json();
+            fetch("data/associations.json"),
+            fetch("data/employees.json"),
+            fetch("data/services.json")
 
-        const employeeResponse =
-            await fetch("data/employees.json");
+        ]);
 
-        employees =
-            await employeeResponse.json();
+        associations = await associationsResponse.json();
+        employees = await employeesResponse.json();
+        services = await servicesResponse.json();
 
-        const serviceResponse =
-            await fetch("data/services.json");
-
-        services =
-            await serviceResponse.json();
-
-        console.log("Associations:", associations);
-        console.log("Employees:", employees);
-        console.log("Services:", services);
+        populateOfficeDropdown();
+        populateEmployeeDropdown();
+        populateServiceDropdown();
 
     }
 
-    catch(error){
+    catch (error) {
 
-        console.error("Unable to load JSON files.", error);
+        console.error(error);
+
+        alert("Unable to load JSON data.");
 
     }
 
 }
 
-// ----------------------
-// Populate Offices
-// ----------------------
+// ======================================================
+// Populate Dropdowns
+// ======================================================
 
-function populateOffices(){
+function populateOfficeDropdown() {
 
-    officeSelect.innerHTML =
-        '<option value="">Select Office</option>';
+    const offices = [...new Set(
 
-    const offices =
-        [...new Set(associations.map(a => a.office))];
+        associations.map(a => a.office)
 
-    offices.sort();
+    )].sort();
 
-    offices.forEach(office=>{
+    offices.forEach(office => {
 
-        const option =
-            document.createElement("option");
+        const option = document.createElement("option");
 
         option.value = office;
-
         option.textContent = office;
 
         officeSelect.appendChild(option);
@@ -114,106 +152,316 @@ function populateOffices(){
 
 }
 
-// ----------------------
-// Populate Employees
-// ----------------------
+function populateAssociationDropdown(selectedOffice) {
 
-function populateEmployees(){
+    clearDropdown(
 
-    employeeSelect.innerHTML =
-        '<option value="">Select Employee</option>';
+        associationSelect,
+        "Select Association"
 
-    employees.forEach(employee=>{
-
-        const option =
-            document.createElement("option");
-
-        option.value = employee.id;
-
-        option.textContent = employee.name;
-
-        employeeSelect.appendChild(option);
-
-    });
-
-}
-
-// ----------------------
-// Populate Services
-// ----------------------
-
-function populateServices(){
-
-    serviceSelect.innerHTML =
-        '<option value="">Select Service</option>';
-
-    services.sort((a,b)=>
-        a.name.localeCompare(b.name)
     );
 
-    services.forEach(service=>{
+    const filtered = associations.filter(a =>
 
-        const option =
-            document.createElement("option");
+        a.office === selectedOffice
 
-        option.value = service.id;
-
-        option.textContent =
-            `${service.name} ($${service.price.toFixed(2)} / ${service.unit})`;
-
-        serviceSelect.appendChild(option);
-
-    });
-
-}
-
-// ----------------------
-// Events
-// ----------------------
-
-function setupEvents(){
-
-    officeSelect.addEventListener(
-        "change",
-        officeChanged
     );
 
-}
+    filtered
+        .sort((a, b) =>
 
-// ----------------------
-// Office Changed
-// ----------------------
+            a.association.localeCompare(b.association)
 
-function officeChanged(){
+        )
+        .forEach(association => {
 
-    associationSelect.innerHTML =
-        '<option value="">Select Association</option>';
+            const option = document.createElement("option");
 
-    associationSelect.disabled = true;
+            option.value = association.id;
+            option.textContent = association.association;
 
-    if(!officeSelect.value)
-        return;
+            associationSelect.appendChild(option);
 
-    const filtered =
-        associations.filter(a =>
-            a.office === officeSelect.value
-        );
-
-    filtered.forEach(association=>{
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            association.id;
-
-        option.textContent =
-            association.association;
-
-        associationSelect.appendChild(option);
-
-    });
+        });
 
     associationSelect.disabled = false;
 
 }
+
+function populateEmployeeDropdown() {
+
+    employees
+        .sort((a, b) =>
+
+            a.name.localeCompare(b.name)
+
+        )
+        .forEach(employee => {
+
+            const option = document.createElement("option");
+
+            option.value = employee.id;
+            option.textContent = employee.name;
+
+            employeeSelect.appendChild(option);
+
+        });
+
+}
+
+function populateServiceDropdown() {
+
+    services
+        .sort((a, b) =>
+
+            a.name.localeCompare(b.name)
+
+        )
+        .forEach(service => {
+
+            const option = document.createElement("option");
+
+            option.value = service.name;
+            option.textContent = service.name;
+
+            serviceSelect.appendChild(option);
+
+        });
+
+}
+
+// ======================================================
+// Service Preview
+// ======================================================
+
+function updateServicePreview() {
+
+    const serviceName = serviceSelect.value;
+
+    const quantity = Number(quantityInput.value) || 1;
+
+    if (!serviceName) {
+
+        unitPrice.textContent = "$0.00";
+        unitType.textContent = "-";
+        lineTotal.textContent = "$0.00";
+
+        return;
+
+    }
+
+    const service = services.find(s =>
+
+        s.name === serviceName
+
+    );
+
+    if (!service) return;
+
+    const total = quantity * service.price;
+
+    unitPrice.textContent = formatMoney(service.price);
+    unitType.textContent = service.unit;
+    lineTotal.textContent = formatMoney(total);
+
+}
+
+// ======================================================
+// Receipt Logic
+// ======================================================
+
+function renderReceipt() {
+
+    receiptTableBody.innerHTML = "";
+
+    receiptItems.forEach((item, index) => {
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${item.service}</td>
+            <td>${item.quantity}</td>
+            <td>${item.unit}</td>
+            <td class="money">${formatMoney(item.unitPrice)}</td>
+            <td class="money">${formatMoney(item.lineTotal)}</td>
+            <td>
+                <button class="delete-btn" data-index="${index}">
+                    Delete
+                </button>
+            </td>
+        `;
+
+        receiptTableBody.appendChild(row);
+
+    });
+
+    updateReceiptTotal();
+
+}
+
+function addReceiptItem() {
+
+    if (!officeSelect.value) {
+        alert("Please select an office.");
+        return;
+    }
+
+    if (!associationSelect.value) {
+        alert("Please select an association.");
+        return;
+    }
+
+    if (!employeeSelect.value) {
+        alert("Please select the employee preparing this billing.");
+        return;
+    }
+
+    if (!serviceSelect.value) {
+        alert("Please select a service.");
+        return;
+    }
+
+    const quantity = Number(quantityInput.value);
+
+    if (!quantity || quantity <= 0) {
+        alert("Quantity must be greater than zero.");
+        return;
+    }
+
+    const service = services.find(s => s.name === serviceSelect.value);
+
+    if (!service) return;
+
+    const item = {
+
+        service: service.name,
+        quantity: quantity,
+        unit: service.unit,
+        unitPrice: service.price,
+        lineTotal: quantity * service.price,
+        notes: notesInput.value.trim()
+
+    };
+
+    receiptItems.push(item);
+
+    renderReceipt();
+
+    serviceSelect.value = "";
+    quantityInput.value = 1;
+    notesInput.value = "";
+
+    updateServicePreview();
+
+}
+
+function deleteReceiptItem(index) {
+
+    receiptItems.splice(index, 1);
+
+    renderReceipt();
+
+}
+
+function clearReceipt() {
+
+    if (receiptItems.length === 0) return;
+
+    const confirmed = confirm(
+        "Clear all receipt items?"
+    );
+
+    if (!confirmed) return;
+
+    receiptItems = [];
+
+    renderReceipt();
+
+}
+
+// ======================================================
+// Event Listeners
+// ======================================================
+
+officeSelect.addEventListener("change", () => {
+
+    if (!officeSelect.value) {
+
+        associationSelect.disabled = true;
+
+        clearDropdown(
+            associationSelect,
+            "Select Association"
+        );
+
+        return;
+
+    }
+
+    populateAssociationDropdown(
+        officeSelect.value
+    );
+
+});
+
+serviceSelect.addEventListener(
+    "change",
+    updateServicePreview
+);
+
+quantityInput.addEventListener(
+    "input",
+    updateServicePreview
+);
+
+addItemButton.addEventListener(
+    "click",
+    addReceiptItem
+);
+
+receiptTableBody.addEventListener("click", (event) => {
+
+    if (!event.target.classList.contains("delete-btn")) return;
+
+    const index = Number(
+        event.target.dataset.index
+    );
+
+    deleteReceiptItem(index);
+
+});
+
+clearReceiptButton.addEventListener(
+    "click",
+    clearReceipt
+);
+
+printButton.addEventListener("click", () => {
+
+    window.print();
+
+});
+
+exportButton.addEventListener("click", () => {
+
+    alert("PDF export coming soon.");
+
+});
+
+// ======================================================
+// Initialization
+// ======================================================
+
+function initialize() {
+
+    todayDate.textContent = getTodayString();
+
+    quantityInput.value = 1;
+
+    updateServicePreview();
+
+    loadData();
+
+}
+
+initialize();
