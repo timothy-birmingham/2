@@ -240,13 +240,15 @@ table{
 
 th{
 
-    background:#f5f7fa;
+    background:#1f4e79;
 
-    text-align:left;
+    color:white;
 
     padding:14px;
 
-    border-bottom:2px solid #dfe6ec;
+    text-align:left;
+
+    font-weight:600;
 
 }
 
@@ -254,25 +256,39 @@ td{
 
     padding:14px;
 
-    border-bottom:1px solid #eceff3;
+    border-bottom:1px solid #e6e9ee;
+
+    vertical-align:middle;
 
 }
 
-tbody tr:hover{
+tbody tr:nth-child(even){
 
     background:#fafbfd;
 
 }
 
-.receipt-total{
+tbody tr:hover{
 
-    margin-top:25px;
+    background:#eef5fb;
+
+}
+
+.receipt-total{
 
     display:flex;
 
     justify-content:flex-end;
 
-    font-size:24px;
+    align-items:center;
+
+    margin-top:25px;
+
+    padding-top:20px;
+
+    border-top:2px solid #dfe6ec;
+
+    font-size:26px;
 
     font-weight:700;
 
@@ -280,6 +296,15 @@ tbody tr:hover{
 
 }
 
+.receipt-total span{
+
+    margin-left:20px;
+
+    min-width:120px;
+
+    text-align:right;
+
+}
 .receipt-total span{
 
     margin-left:20px;
@@ -333,5 +358,81 @@ tbody tr:hover{
         font-size:20px;
 
     }
+
+}
+
+/* ==========================================
+   Service Preview Cards
+========================================== */
+
+.service-preview{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:15px;
+
+    margin-bottom:25px;
+
+}
+
+.preview-card{
+
+    background:#f7f9fc;
+
+    border:1px solid #dce3ea;
+
+    border-radius:10px;
+
+    padding:18px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    text-align:center;
+
+    transition:.2s;
+
+}
+
+.preview-card:hover{
+
+    border-color:#1f4e79;
+
+    transform:translateY(-2px);
+
+}
+
+.preview-title{
+
+    font-size:13px;
+
+    color:#6b7280;
+
+    margin-bottom:10px;
+
+    text-transform:uppercase;
+
+    letter-spacing:.5px;
+
+}
+
+.preview-card span:last-child{
+
+    font-size:24px;
+
+    font-weight:700;
+
+    color:#1f4e79;
+
+}
+
+.money{
+
+    text-align:right;
+
+    font-weight:600;
 
 }
