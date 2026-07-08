@@ -25,7 +25,7 @@
     },
     {
         "id": 3,
-        "office": "Naples",
+        "office": "Bonita",
         "association": "Pelican Bay",
         "manager": "Mike Johnson",
         "units": 420,
@@ -37,7 +37,7 @@
     },
     {
         "id": 4,
-        "office": "Naples",
+        "office": "Bonita",
         "association": "Royal Palm Estates",
         "manager": "Sarah Wilson",
         "units": 96,
