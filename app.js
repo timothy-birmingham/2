@@ -869,7 +869,120 @@ function printReceipt() {
 
 }
 
+// ======================================================
+// PDF Export
+// ======================================================
 
+function exportPDF() {
+
+    if (receiptItems.length === 0) {
+
+        alert("There are no billing items to export.");
+
+        return;
+
+    }
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF();
+
+    const association = getSelectedAssociation();
+    const employee = getSelectedEmployee();
+
+    let y = 20;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("VESTA BILLING REQUEST", 105, y, { align: "center" });
+
+    y += 15;
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+
+    doc.text(`Date: ${getTodayString()}`, 15, y);
+    y += 7;
+
+    doc.text(`Office: ${officeSelect.value}`, 15, y);
+    y += 7;
+
+    doc.text(
+        `Association: ${association ? association.association : ""}`,
+        15,
+        y
+    );
+    y += 7;
+
+    doc.text(
+        `Prepared By: ${employee ? employee.name : ""}`,
+        15,
+        y
+    );
+
+    y += 12;
+
+    doc.setFont("helvetica", "bold");
+
+    doc.text("Service", 15, y);
+    doc.text("Qty", 95, y);
+    doc.text("Unit", 115, y);
+    doc.text("Price", 145, y);
+    doc.text("Total", 175, y);
+
+    y += 4;
+
+    doc.line(15, y, 195, y);
+
+    y += 8;
+
+    doc.setFont("helvetica", "normal");
+
+    let grandTotal = 0;
+
+    receiptItems.forEach(item => {
+
+        doc.text(item.service, 15, y);
+
+        doc.text(String(item.quantity), 95, y);
+
+        doc.text(item.unit, 115, y);
+
+        doc.text(formatMoney(item.unitPrice), 145, y);
+
+        doc.text(formatMoney(item.lineTotal), 175, y);
+
+        grandTotal += item.lineTotal;
+
+        y += 8;
+
+        if (y > 270) {
+
+            doc.addPage();
+
+            y = 20;
+
+        }
+
+    });
+
+    y += 5;
+
+    doc.line(15, y, 195, y);
+
+    y += 10;
+
+    doc.setFont("helvetica", "bold");
+
+    doc.text(
+        `TOTAL: ${formatMoney(grandTotal)}`,
+        145,
+        y
+    );
+
+    doc.save("Vesta Billing Request.pdf");
+
+}
 
 // ======================================================
 // Event Listeners
@@ -956,27 +1069,15 @@ clearReceiptButton.addEventListener(
     clearReceipt
 );
 
-
-
 printButton.addEventListener(
     "click",
     printReceipt
 );
 
-
-
 exportButton.addEventListener(
     "click",
-    () => {
-
-        alert(
-            "PDF export coming soon."
-        );
-
-    }
+    exportPDF
 );
-
-
 
 // ======================================================
 // Application Startup
