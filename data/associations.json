@@ -2,8 +2,8 @@
     {
         "id": 1,
         "office": "Fort Myers",
-        "association": "Palm Grove HOA",
-        "manager": "John Smith",
+        "association": "Sunset Towers COA",
+        "manager": "Carina Harkins",
         "units": 142,
         "services": [
             "Website",
@@ -14,8 +14,8 @@
     {
         "id": 2,
         "office": "Fort Myers",
-        "association": "Lakeside Villas",
-        "manager": "Jane Doe",
+        "association": "Paradise Village",
+        "manager": "Carina Harkins",
         "units": 210,
         "services": [
             "Website",
@@ -26,8 +26,8 @@
     {
         "id": 3,
         "office": "Bonita",
-        "association": "Pelican Bay",
-        "manager": "Mike Johnson",
+        "association": "Imperial Golf Estates",
+        "manager": "Naomi Baratko",
         "units": 420,
         "services": [
             "Accounting",
@@ -38,8 +38,8 @@
     {
         "id": 4,
         "office": "Bonita",
-        "association": "Royal Palm Estates",
-        "manager": "Sarah Wilson",
+        "association": "Ironwood",
+        "manager": "Antoniette DiFillipo",
         "units": 96,
         "services": [
             "Gate Access",
